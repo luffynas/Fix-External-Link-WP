@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Fix External Link
-Plugin URI: https://example.com
+Plugin URI: https://cekmedia.com
 Description: A plugin to modify external links, set follow/nofollow attributes, control implementation on posts or pages, and enable redirection (301, 302).
-Version: 2.2
-Author: Your Name
-Author URI: https://example.com
+Version: 1.1
+Author: @luffynas
+Author URI: https://cekmedia.com
 License: GPL2
 */
 
