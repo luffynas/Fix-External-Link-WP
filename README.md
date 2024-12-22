@@ -8,7 +8,7 @@ maka anda harus memisahkan domain dan juga path slug, dimana keyword akan diambi
 tolong format seperti berikut
 
 [
-{
+    {
         "keyword": "money",
         "url": "https://rootslivemusic.com/happy-money-loans/"
     },

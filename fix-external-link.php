@@ -71,6 +71,7 @@ function fix_external_link_settings_page() {
         update_option('fix_external_link_redirect_type', sanitize_text_field($_POST['redirect_type']));
         update_option('fix_external_link_open_type', sanitize_text_field($_POST['open_type']));
         update_option('fix_external_link_force', sanitize_text_field($_POST['force_check']));
+        update_option('fix_external_link_default', sanitize_text_field($_POST['default_external_link']));
         echo '<div class="updated"><p>Settings saved.</p></div>';
     }
 
@@ -141,6 +142,13 @@ function fix_external_link_settings_page() {
                             <option value="yes" <?php selected($force_check, 'yes'); ?>>Yes</option>
                         </select>
                         <p class="description">Bila diaktifkan, semua tautan eksternal akan dimodifikasi tanpa mempedulikan keywords. Pengaturan ini mengesampingkan logika pencocokan keywords.</p>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">Default External Link</th>
+                    <td>
+                        <input type="url" name="default_external_link" value="<?php echo esc_attr(get_option('fix_external_link_default', '')); ?>" class="regular-text" />
+                        <p class="description">Set a default link to be used when no match is found.</p>
                     </td>
                 </tr>
             </table>
@@ -289,6 +297,7 @@ function fix_external_links_in_content($content) {
     $redirect_type = get_option('fix_external_link_redirect_type', 'none');
     $open_type = get_option('fix_external_link_open_type', '_self');
     $force_check = get_option('fix_external_link_force', 'no');
+    $default_link = get_option('fix_external_link_default', ''); 
 
     if (
         ($apply_to === 'posts' && is_singular('post')) ||
@@ -297,7 +306,7 @@ function fix_external_links_in_content($content) {
     ) {
         $content = preg_replace_callback(
             '/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/i',
-            function ($matches) use ($links, $link_attribute, $redirect_type, $open_type, $force_check) {
+            function ($matches) use ($links, $link_attribute, $redirect_type, $open_type, $force_check, $default_link) {
                 // $anchor_text = strtolower(strip_tags($matches[2]));
                 // foreach ($links as $link) {
                 //     if (strpos($anchor_text, strtolower($link->keyword)) !== false) {
@@ -309,7 +318,12 @@ function fix_external_links_in_content($content) {
 
                 if ($force_check === 'yes') {
                     // Force all external links to use the specified options
-                    return '<a href="' . esc_url($matches[1]) . '"' . $link_attribute . ' target="' . esc_attr($open_type) . '" class="' . esc_attr($redirect) . '">' . $matches[2] . '</a>';
+                    if (!empty($default_link)) {
+                        return '<a href="' . esc_url($default_link) . '"' . $link_attribute . ' target="' . esc_attr($open_type) . '" class="' . esc_attr($redirect) . '">' . $matches[2] . '</a>';
+                    }
+
+                    $random_index = array_rand($links);
+                    return '<a href="' . esc_url($links[$random_index]->url) . '"' . $link_attribute . ' target="' . esc_attr($open_type) . '" class="' . esc_attr($redirect) . '">' . $matches[2] . '</a>';
                 } else {
                     $anchor_text = strtolower(strip_tags($matches[2]));
                     foreach ($links as $link) {
